@@ -5,8 +5,10 @@ import tweepy   #Module Twitter
 import requests #Module requêtes
 import datetime #Module Time II
 from meteofrance_api import * #Module météo france
+from rich import print
+
 ################################################################# - DATA - ############################################################################
-"""        
+"""
         {'icon': 'p1j', 'desc': 'Ensoleillé'},
         {'icon': 'p1bisj', 'desc': 'Peu nuageux'},
         {'icon': 'p2j', 'desc': 'Eclaircies'},
@@ -42,7 +44,7 @@ api = tweepy.API(auth)
 certif = True
 client = MeteoFranceClient()
 locat = {
-        "Bordeaux":[44.837789,-0.57918],
+        "Bordeaux":[-0.57918,44.837789],
         "Lille":[3.057256,50.629250],
         "Lyon":[4.835659,45.764043],
         "Marseille":[5.369780,43.296482],
@@ -53,29 +55,31 @@ locat = {
         }
 ################################################################## - MAIN - ####################################################################
 while certif == True:
-        x = datetime.datetime.now()
-        time.sleep((32-x.hour)*3600+(59-x.minute)*60+(60-x.second))
-        tweet = '| #meteo | ~ Prévison de la journée en #France:\n'
-        for i in locat:
-                weather_forecast = client.get_forecast(latitude=locat[i][1], longitude=locat[i][0])
-                print(weather_forecast.daily_forecast[0])
-                ico = weather_forecast.daily_forecast[0]['weather12H']['icon']
-                if ico == 'p1j' or ico == 'p1bisj':
-                        ico = '☀️'
-                elif ico == 'p2j' or ico == 'p2bisj':
-                        ico = '⛅'
-                elif ico == 'p3j' or ico == 'p3bisj' or ico == 'p4j' or ico == 'p4bisj':
-                        ico = '☁️'
-                elif ico == 'p5j' or ico == 'p5bisj' or ico == 'p6j' or ico == 'p6bisj' or ico == 'p7j' or ico == 'p7bisj' or ico == 'p8j' or ico == 'p8bisj':
-                        ico = '🌫️'
-                elif ico == 'p10j' or ico == 'p10bisj' or ico == 'p11j' or ico == 'p11bisj' or ico == 'p12j' or ico == 'p12bisj' or ico == 'p13j' or ico == 'p13bisj' or ico == 'p14j' or ico == 'p14bisj' or ico == 'p15j' or ico == 'p15bisj':
-                        ico = '🌧️'
-                elif ico == 'p17j' or ico == 'p17bisj' or ico == 'p18j' or ico == 'p18bisj' or ico == 'p19j' or ico == 'p19bisj' or ico == 'p20j' or ico == 'p20bisj':
-                        ico = '❄️'
-                elif ico == 'p26j' or ico == 'p26bisj' or ico == 'p27j' or ico == 'p27bisj':
-                        ico = '⛈️'
-                else : 
-                        print(weather_forecast.daily_forecast[0]['weather12H'])
-                tweet+='#'+i+' '+str(weather_forecast.daily_forecast[0]['T']['min'])+'/'+str(weather_forecast.daily_forecast[0]['T']['max'])+'°C | '+ico+'\n'
-        print ("Tweet weather "+str(time.ctime(time.time())))
-        api.update_status(tweet)
+        try:
+                x = datetime.datetime.now()
+                tweet = '| #meteo | ~ Prévison de la journée en #France:\n'
+                for i in locat:
+                        weather_forecast = client.get_forecast(latitude=locat[i][1], longitude=locat[i][0])
+                        ico = weather_forecast.daily_forecast[0]['weather12H']['icon']
+                        if ico == 'p1j' or ico == 'p1bisj':
+                                ico = '☀️'
+                        elif ico == 'p2j' or ico == 'p2bisj':
+                                ico = '⛅'
+                        elif ico == 'p3j' or ico == 'p3bisj' or ico == 'p4j' or ico == 'p4bisj':
+                                ico = '☁️'
+                        elif ico == 'p5j' or ico == 'p5bisj' or ico == 'p6j' or ico == 'p6bisj' or ico == 'p7j' or ico == 'p7bisj' or ico == 'p8j' or ico == 'p8bisj':
+                                ico = '🌫️'
+                        elif ico == 'p10j' or ico == 'p10bisj' or ico == 'p11j' or ico == 'p11bisj' or ico == 'p12j' or ico == 'p12bisj' or ico == 'p13j' or ico == 'p13bisj' or ico == 'p14j' or ico == 'p14bisj' or ico == 'p15j' or ico == 'p15bisj':
+                                ico = '🌧️'
+                        elif ico == 'p17j' or ico == 'p17bisj' or ico == 'p18j' or ico == 'p18bisj' or ico == 'p19j' or ico == 'p19bisj' or ico == 'p20j' or ico == 'p20bisj':
+                                ico = '❄️'
+                        elif ico == 'p26j' or ico == 'p26bisj' or ico == 'p27j' or ico == 'p27bisj':
+                                ico = '⛈️'
+                        else :
+                                print(weather_forecast.daily_forecast[0]['weather12H'])
+                        tweet+='#'+i+' '+str(weather_forecast.daily_forecast[0]['T']['min'])+'/'+str(weather_forecast.daily_forecast[0]['T']['max'])+'°C | '+ico+'\n'
+                print('[bold green4]'+str(datetime.date.today())+' | TWEET | Weather Data [/bold green4]')
+                api.update_status(tweet)
+                time.sleep((33-x.hour)*3600+(59-x.minute)*60+(60-x.second))
+        except:
+                print('[bold bright_red]'+str(datetime.date.today())+' | ERROR | Weather API [/bold bright_red]')
